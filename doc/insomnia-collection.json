@@ -1,0 +1,289 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-04-14",
+  "__export_source": "insomnia.desktop.app",
+  "resources": [
+    {
+      "_id": "wrk_mp_integration",
+      "_type": "workspace",
+      "name": "app-integration-mercado-pago",
+      "description": "Collection para consumir a API de integração com Mercado Pago (porta 8014)"
+    },
+    {
+      "_id": "env_mp_base",
+      "_type": "environment",
+      "parentId": "wrk_mp_integration",
+      "name": "Local (Sandbox)",
+      "data": {
+        "base_url": "http://localhost:8014",
+        "empresa_id": "8cc96358-b211-41f1-8bec-28a812931e37",
+        "usuario_id": "00000000-0000-0000-0000-000000000001",
+        "payer_email": "testuser2265883902345525472@testuser.com",
+        "payer_nome": "Jesse S Bezerra",
+        "payer_cpf": "12345678909",
+        "payment_id": "1326902202",
+        "assinatura_id": "00000000-0000-0000-0000-000000000000",
+        "mp_public_key": "TEST-COLE-SUA-PUBLIC-KEY-AQUI",
+        "mp_access_token": "TEST-981726430044167-041309-651bf6ea41f8c4398afcfdbe3f8c62cb-117657481",
+        "card_token_id": "PREENCHER_APOS_STEP_1"
+      }
+    },
+    {
+      "_id": "fld_cartao_fluxo",
+      "_type": "request_group",
+      "parentId": "wrk_mp_integration",
+      "name": "🔄 Fluxo Cartão (2 passos)"
+    },
+    {
+      "_id": "req_step1_card_token",
+      "_type": "request",
+      "parentId": "fld_cartao_fluxo",
+      "name": "PASSO 1 — Tokenizar Cartão (MP direto)",
+      "method": "POST",
+      "url": "https://api.mercadopago.com/v1/card_tokens?public_key={{ _.mp_public_key }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"card_number\": \"5031433215406351\",\n  \"expiration_year\": \"2030\",\n  \"expiration_month\": \"11\",\n  \"security_code\": \"123\",\n  \"cardholder\": {\n    \"name\": \"JESSE S BEZERRA\",\n    \"identification\": {\n      \"type\": \"CPF\",\n      \"number\": \"{{ _.payer_cpf }}\"\n    }\n  }\n}"
+      }
+    },
+    {
+      "_id": "req_step2_criar_assinatura_cartao",
+      "_type": "request",
+      "parentId": "fld_cartao_fluxo",
+      "name": "PASSO 2 — Criar Assinatura com Token",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/v1/assinaturas",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"empresaId\": \"{{ _.empresa_id }}\",\n  \"usuarioId\": \"{{ _.usuario_id }}\",\n  \"payerEmail\": \"{{ _.payer_email }}\",\n  \"planoTipo\": \"SMART_IA\",\n  \"cardTokenId\": \"{{ _.card_token_id }}\",\n  \"payerDocumento\": \"{{ _.payer_cpf }}\",\n  \"payerTipoDocumento\": \"CPF\"\n}"
+      }
+    },
+    {
+      "_id": "fld_config",
+      "_type": "request_group",
+      "parentId": "wrk_mp_integration",
+      "name": "Config"
+    },
+    {
+      "_id": "req_config_mp",
+      "_type": "request",
+      "parentId": "fld_config",
+      "name": "Buscar Chave Pública MP",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/v1/config/mp",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {}
+    },
+    {
+      "_id": "fld_assinaturas",
+      "_type": "request_group",
+      "parentId": "wrk_mp_integration",
+      "name": "Assinaturas"
+    },
+    {
+      "_id": "fld_pagamentos",
+      "_type": "request_group",
+      "parentId": "wrk_mp_integration",
+      "name": "Pagamentos Avulsos"
+    },
+    {
+      "_id": "fld_webhook",
+      "_type": "request_group",
+      "parentId": "wrk_mp_integration",
+      "name": "Webhook (simulação)"
+    },
+    {
+      "_id": "fld_sandbox",
+      "_type": "request_group",
+      "parentId": "wrk_mp_integration",
+      "name": "Sandbox MP (aprovação manual)"
+    },
+    {
+      "_id": "req_listar_planos",
+      "_type": "request",
+      "parentId": "fld_assinaturas",
+      "name": "Listar Planos",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/v1/assinaturas/planos",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {}
+    },
+    {
+      "_id": "req_criar_assinatura_pix",
+      "_type": "request",
+      "parentId": "fld_assinaturas",
+      "name": "Criar Assinatura PIX",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/v1/assinaturas/pix",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"empresaId\": \"{{ _.empresa_id }}\",\n  \"usuarioId\": \"{{ _.usuario_id }}\",\n  \"planoTipo\": \"SMART_IA\",\n  \"payerEmail\": \"{{ _.payer_email }}\",\n  \"payerNome\": \"{{ _.payer_nome }}\"\n}"
+      }
+    },
+    {
+      "_id": "req_criar_assinatura_cartao",
+      "_type": "request",
+      "parentId": "fld_assinaturas",
+      "name": "Criar Assinatura Cartão (com token)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/v1/assinaturas",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"empresaId\": \"{{ _.empresa_id }}\",\n  \"usuarioId\": \"{{ _.usuario_id }}\",\n  \"payerEmail\": \"{{ _.payer_email }}\",\n  \"planoTipo\": \"SMART_IA\",\n  \"cardTokenId\": \"{{ _.card_token_id }}\",\n  \"payerDocumento\": \"{{ _.payer_cpf }}\",\n  \"payerTipoDocumento\": \"CPF\"\n}"
+      }
+    },
+    {
+      "_id": "req_buscar_assinatura",
+      "_type": "request",
+      "parentId": "fld_assinaturas",
+      "name": "Buscar Assinatura por ID",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/v1/assinaturas/{{ _.assinatura_id }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {}
+    },
+    {
+      "_id": "req_listar_assinaturas_empresa",
+      "_type": "request",
+      "parentId": "fld_assinaturas",
+      "name": "Listar Assinaturas por Empresa",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/v1/assinaturas/empresa/{{ _.empresa_id }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {}
+    },
+    {
+      "_id": "req_cancelar_assinatura",
+      "_type": "request",
+      "parentId": "fld_assinaturas",
+      "name": "Cancelar Assinatura",
+      "method": "DELETE",
+      "url": "{{ _.base_url }}/api/v1/assinaturas/{{ _.assinatura_id }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {}
+    },
+    {
+      "_id": "req_criar_pix_avulso",
+      "_type": "request",
+      "parentId": "fld_pagamentos",
+      "name": "Criar Pagamento PIX Avulso",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/v1/pagamentos/pix",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"empresaId\": \"{{ _.empresa_id }}\",\n  \"usuarioId\": \"{{ _.usuario_id }}\",\n  \"valor\": 0.20,\n  \"descricao\": \"Pagamento avulso de teste\",\n  \"payerEmail\": \"{{ _.payer_email }}\",\n  \"payerNome\": \"{{ _.payer_nome }}\",\n  \"planoTipo\": null\n}"
+      }
+    },
+    {
+      "_id": "req_criar_checkout_avulso",
+      "_type": "request",
+      "parentId": "fld_pagamentos",
+      "name": "Criar Checkout Avulso (Cartão/Link)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/api/v1/pagamentos/checkout",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"empresaId\": \"{{ _.empresa_id }}\",\n  \"usuarioId\": \"{{ _.usuario_id }}\",\n  \"valor\": 0.20,\n  \"descricao\": \"Checkout avulso de teste\",\n  \"payerEmail\": \"{{ _.payer_email }}\",\n  \"payerNome\": \"{{ _.payer_nome }}\"\n}"
+      }
+    },
+    {
+      "_id": "req_listar_pagamentos_empresa",
+      "_type": "request",
+      "parentId": "fld_pagamentos",
+      "name": "Listar Pagamentos por Empresa",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/v1/pagamentos/empresa/{{ _.empresa_id }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {}
+    },
+    {
+      "_id": "req_buscar_pagamento",
+      "_type": "request",
+      "parentId": "fld_pagamentos",
+      "name": "Buscar Pagamento por ID",
+      "method": "GET",
+      "url": "{{ _.base_url }}/api/v1/pagamentos/{{ _.payment_id }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {}
+    },
+    {
+      "_id": "req_simular_webhook_approved",
+      "_type": "request",
+      "parentId": "fld_webhook",
+      "name": "Simular Webhook — payment.updated (approved)",
+      "method": "POST",
+      "url": "{{ _.base_url }}/webhook/mercadopago",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"action\": \"payment.updated\",\n  \"type\": \"payment\",\n  \"data\": {\n    \"id\": \"{{ _.payment_id }}\"\n  }\n}"
+      }
+    },
+    {
+      "_id": "req_simular_webhook_created",
+      "_type": "request",
+      "parentId": "fld_webhook",
+      "name": "Simular Webhook — payment.created",
+      "method": "POST",
+      "url": "{{ _.base_url }}/webhook/mercadopago",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"action\": \"payment.created\",\n  \"type\": \"payment\",\n  \"data\": {\n    \"id\": \"{{ _.payment_id }}\"\n  }\n}"
+      }
+    },
+    {
+      "_id": "req_sandbox_aprovar_pagamento",
+      "_type": "request",
+      "parentId": "fld_sandbox",
+      "name": "Aprovar Pagamento PIX (token do vendedor)",
+      "method": "PUT",
+      "url": "https://api.mercadopago.com/v1/payments/{{ _.payment_id }}",
+      "headers": [
+        { "name": "Content-Type", "value": "application/json" },
+        { "name": "Authorization", "value": "Bearer {{ _.mp_access_token }}" }
+      ],
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"status\": \"approved\"\n}"
+      }
+    }
+  ]
+}
