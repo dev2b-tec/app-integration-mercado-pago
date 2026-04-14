@@ -143,6 +143,7 @@ public class AssinaturaService {
                 .orElseThrow(() -> new IllegalArgumentException("Assinatura não encontrada: " + id)));
     }
 
+    @Transactional(readOnly = true)
     public List<AssinaturaDto> listarPorEmpresa(UUID empresaId) {
         return assinaturaRepository.findAllByEmpresaId(empresaId)
                 .stream().map(AssinaturaDto::from).toList();
