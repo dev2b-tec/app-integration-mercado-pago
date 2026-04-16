@@ -18,6 +18,6 @@ RUN addgroup --system --gid 1001 spring && \
 COPY --from=builder /app/target/*.jar app.jar
 
 USER spring
-EXPOSE 8013
+EXPOSE 8014
 
 ENTRYPOINT ["java", "-jar", "app.jar"]

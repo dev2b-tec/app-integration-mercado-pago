@@ -7,7 +7,7 @@ services:
       - path: .env.app
         required: false
     expose:
-      - "8013"
+      - "8014"
     networks:
       - db-net
       - infra-net
@@ -18,7 +18,7 @@ services:
       - "traefik.http.routers.app-integration-mp.entrypoints=websecure"
       - "traefik.http.routers.app-integration-mp.tls=true"
       - "traefik.http.routers.app-integration-mp.tls.certresolver=letsencrypt"
-      - "traefik.http.services.app-integration-mp.loadbalancer.server.port=8013"
+      - "traefik.http.services.app-integration-mp.loadbalancer.server.port=8014"
 
 networks:
   db-net:
