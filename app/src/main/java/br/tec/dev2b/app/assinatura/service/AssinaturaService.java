@@ -45,7 +45,8 @@ public class AssinaturaService {
                 .orElseThrow(() -> new IllegalArgumentException("Plano não encontrado: " + dto.planoTipo()));
 
         // TODO: remover após testes — força valor mínimo para teste de cartão
-        final java.math.BigDecimal valorTeste = new java.math.BigDecimal("1.00");
+        // final java.math.BigDecimal valorTeste = new java.math.BigDecimal("1.00");
+        final java.math.BigDecimal valorTeste = plano.getValorMensal();
 
         com.mercadopago.client.common.IdentificationRequest identification = null;
         if (dto.payerDocumento() != null && dto.payerTipoDocumento() != null) {

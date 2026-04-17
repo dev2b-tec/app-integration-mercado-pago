@@ -133,14 +133,15 @@ public class PagamentoService {
             descricao = "Assinatura " + plano.getNome() + " — DEV2B";
         }
         // TODO: remover após testes — força valor mínimo para teste de PIX
-       final BigDecimal valorFinal = new BigDecimal("0.20");
-       // final String descricaoFinal = descricao;
+       // final BigDecimal valorFinal = new BigDecimal("0.20");
+       final BigDecimal valorFinal = valor != null ? valor : BigDecimal.ZERO;
+       final String descricaoFinal = descricao != null ? descricao : dto.descricao();
 
         Pagamento pagamento = Pagamento.builder()
                 .empresaId(dto.empresaId())
                 .usuarioId(dto.usuarioId())
                 .valor(valorFinal)
-                .descricao(dto.descricao())
+                .descricao(descricaoFinal)
                 .tipo(TipoPagamento.AVULSO)
                 .status(StatusPagamento.PENDENTE)
                 .metodoPagamento("pix")
@@ -151,7 +152,7 @@ public class PagamentoService {
         OffsetDateTime dateOfExpiration = OffsetDateTime.now().plusMinutes(10);
         PaymentCreateRequest request = PaymentCreateRequest.builder()
                 .transactionAmount(valorFinal)
-                .description(dto.descricao())
+                .description(descricaoFinal)
                 .paymentMethodId("pix")
                 .payer(PaymentPayerRequest.builder()
                         .email(dto.payerEmail())
